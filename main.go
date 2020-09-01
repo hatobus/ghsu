@@ -17,6 +17,12 @@ func main() {
 		if err == updator.ErrClientGithubKeyNotFound {
 			log.Fatal("Github Token nof found. please set your github token")
 			return
+		} else if err == updator.ErrFailedToGetOwnerOrRepo {
+			log.Fatal("failed to get repository data, please check your current directory")
+			return
+		} else if err == updator.ErrFailedToGetPublicKey {
+			log.Fatal("failed to get your public key")
+			return
 		} else {
 			log.Fatal(err)
 			return

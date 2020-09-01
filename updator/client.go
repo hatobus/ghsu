@@ -72,7 +72,9 @@ func getOwnersAndRepoFromCurrentGitFile() (string, string, error) {
 		case "user.name":
 			owner = feature[1]
 		case "remote.origin.url":
-			repo = feature[1]
+			c := strings.TrimRight(feature[1], ".git")
+			s := strings.Split(c, "/")
+			repo = s[len(s)-2]
 		default:
 		}
 	}
