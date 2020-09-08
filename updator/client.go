@@ -81,3 +81,22 @@ func getOwnersAndRepoFromCurrentGitFile() (string, string, error) {
 
 	return owner, repo, nil
 }
+
+func (gc *GithubClient) GenerateEncryptedSecret(data map[string]string) ([]*github.EncryptedSecret, error) {
+	pk, err := gc.getRawPublicKey()
+	if err != nil {
+		return nil, err
+	}
+
+	secrets := make([]*github.EncryptedSecret, 0, len(data))
+
+	for name, value := range data {
+		secrets = append(secrets, &github.EncryptedSecret{
+			Name: name,
+			KeyID: *gc.PublicKey.KeyID,
+			EncryptedValue: encryptSodium(value, pk),
+		})
+	}
+
+	return secrets, nil
+}

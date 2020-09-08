@@ -7,6 +7,7 @@ require (
 	github.com/golang/protobuf v1.4.2 // indirect
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/google/go-github/v31 v31.0.0 // indirect
+	github.com/jamesruan/sodium v0.0.0-20181216154042-9620b83ffeae // indirect
 	github.com/urfave/cli v1.22.4
 	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a // indirect
 	golang.org/x/net v0.0.0-20200822124328-c89045814202 // indirect
