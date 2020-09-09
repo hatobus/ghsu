@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"github.com/hatobus/ghsu/env"
 	"github.com/hatobus/ghsu/updator"
 	"github.com/urfave/cli"
 	"log"
@@ -29,7 +31,36 @@ func main() {
 		}
 	}
 
-	log.Println(githubClient)
+	fmt.Println(githubClient)
+
+	app.Commands = []cli.Command{
+		{
+			Name: "show",
+			Usage: "show up the value you want to upload",
+			Subcommands: []cli.Command{
+				{
+					Name: "env",
+					Usage: "show from .env file format",
+					Action: func(c *cli.Context) error {
+						fname := c.Args().First()
+
+						values, err := env.ReadFromDotEnvFile(fname)
+						if err != nil {
+							return err
+						}
+
+						fmt.Printf("new variables from \"%v\"\n", fname)
+
+						for key, val := range values {
+							fmt.Printf("key: %v \t value: %v \n", key, val)
+						}
+
+						return nil
+					},
+				},
+			},
+		},
+	}
 
 	if err := app.Run(os.Args); err != nil {
 		log.Fatal(err)

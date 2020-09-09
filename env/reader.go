@@ -31,7 +31,7 @@ func ReadFromDotEnvFile(fname string) (map[string]string, error) {
 	for scanner.Scan() {
 		elems := strings.Split(scanner.Text(), "=")
 		if len(elems) < 2 {
-			return nil, xerrors.Errorf("read data failed invalid data format")
+			return nil, xerrors.New("read data failed invalid data format")
 		}
 
 		key := elems[0]
