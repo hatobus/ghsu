@@ -39,6 +39,14 @@ func TestReadFromFile(t *testing.T) {
 				"description": "hello=world",
 			},
 		},
+		"read from has a empty line": {
+			filePath: filepath.Join(testDir, ".env.hasline"),
+			expectMap: map[string]string{
+				"name": "hatobus",
+				"age": "24",
+				"description": "this case has line",
+			},
+		},
 	}
 
 	for testName, tc := range testCases {

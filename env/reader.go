@@ -8,6 +8,11 @@ import (
 	"strings"
 )
 
+func FileExist(fname string) bool {
+	_, err := os.Stat(fname)
+	return err == nil
+}
+
 func ReadFromDotEnvFile(fname string) (map[string]string, error) {
 	if fname == "" {
 		fname = "./.env"
@@ -29,21 +34,24 @@ func ReadFromDotEnvFile(fname string) (map[string]string, error) {
 	values := map[string]string{}
 
 	for scanner.Scan() {
-		elems := strings.Split(scanner.Text(), "=")
+		scanned := scanner.Text()
+		if len(scanned) == 0 {
+			continue
+		}
+
+		elems := strings.Split(scanned, "=")
 		if len(elems) < 2 {
 			return nil, xerrors.New("read data failed invalid data format")
 		}
 
 		key := elems[0]
-		var value string
-		if len(elems) == 2 {
-			value = elems[1]
-		} else {
-			value = strings.Join(elems[1:len(elems)], "=")
-		}
+		value := strings.Join(elems[1:len(elems)], "=")
 		values[key] = value
 	}
 
+	if len(values) == 0 {
+		return nil, xerrors.New("read data failed invalid data format")
+	}
 
 	return values, nil
 }
