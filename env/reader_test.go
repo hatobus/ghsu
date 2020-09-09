@@ -8,9 +8,9 @@ import (
 
 func TestReadFromEnvFile(t *testing.T) {
 	type testData struct {
-		filePath string
+		filePath  string
 		expectMap map[string]string
-		isErr bool
+		isErr     bool
 		errString string
 	}
 
@@ -20,35 +20,35 @@ func TestReadFromEnvFile(t *testing.T) {
 		"default .env file": {
 			filePath: filepath.Join(testDir, ".env"),
 			expectMap: map[string]string{
-				"name": "hatobus",
-				"age": "24",
+				"name":  "hatobus",
+				"age":   "24",
 				"place": "Tokyo",
 			},
 		},
 		"invalid .env format": {
-			filePath: filepath.Join(testDir, ".env.invalid"),
+			filePath:  filepath.Join(testDir, ".env.invalid"),
 			expectMap: nil,
-			isErr: true,
+			isErr:     true,
 			errString: "read data failed invalid data format",
 		},
 		"read from current dir": {
-			filePath: "",
+			filePath:  "",
 			expectMap: nil,
-			isErr: true,
+			isErr:     true,
 			errString: "no such file, check your input file name",
 		},
 		"read from has a empty line": {
 			filePath: filepath.Join(testDir, ".env.hasline"),
 			expectMap: map[string]string{
-				"name": "hato=bus",
-				"age": "24",
+				"name":        "hato=bus",
+				"age":         "24",
 				"description": "this case has line",
 			},
 		},
 	}
 
 	for testName, tc := range testCases {
-		t.Run(testName, func(t *testing.T){
+		t.Run(testName, func(t *testing.T) {
 			values, err := ReadFromDotEnvFile(tc.filePath)
 			if err != nil {
 				if !tc.isErr {
@@ -67,9 +67,9 @@ func TestReadFromEnvFile(t *testing.T) {
 
 func TestReadFromFileEncryptBase64(t *testing.T) {
 	type testData struct {
-		filePath string
+		filePath  string
 		expectOut string
-		isErr bool
+		isErr     bool
 		errString string
 	}
 
@@ -77,18 +77,18 @@ func TestReadFromFileEncryptBase64(t *testing.T) {
 
 	testCases := map[string]testData{
 		"default .env file": {
-			filePath: filepath.Join(testDir, ".env"),
+			filePath:  filepath.Join(testDir, ".env"),
 			expectOut: "bmFtZT1oYXRvYnVzCmFnZT0yNApwbGFjZT1Ub2t5bwo=",
 		},
 		"file not found": {
-			filePath: filepath.Join(testDir, "file_not_found.txt"),
-			isErr: true,
+			filePath:  filepath.Join(testDir, "file_not_found.txt"),
+			isErr:     true,
 			errString: "no such file, check your input file name",
 		},
 	}
 
 	for testName, tc := range testCases {
-		t.Run(testName, func(t *testing.T){
+		t.Run(testName, func(t *testing.T) {
 			values, err := ReadFromFileEncryptBase64(tc.filePath)
 			if err != nil {
 				if !tc.isErr {

@@ -21,7 +21,7 @@ func ReadFromDotEnvFile(fname string) (map[string]string, error) {
 	}
 
 	absPath, err := filepath.Abs(fname)
-	if err!= nil {
+	if err != nil {
 		return nil, err
 	}
 

@@ -2,10 +2,12 @@ package command
 
 import (
 	"fmt"
+
 	"golang.org/x/xerrors"
 
-	"github.com/hatobus/ghsu/env"
 	"github.com/urfave/cli"
+
+	"github.com/hatobus/ghsu/env"
 )
 
 func ShowFromEnvFile() func(c *cli.Context) error {

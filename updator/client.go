@@ -18,9 +18,9 @@ var (
 )
 
 type GithubClient struct {
-	Token  string
+	Token     string
 	PublicKey *github.PublicKey
-	Client *github.Client
+	Client    *github.Client
 }
 
 func NewGithubClient() (*GithubClient, error) {
@@ -48,8 +48,8 @@ func NewGithubClient() (*GithubClient, error) {
 	}
 
 	return &GithubClient{
-		Token:  githubToken,
-		Client: githubClient,
+		Token:     githubToken,
+		Client:    githubClient,
 		PublicKey: pubKey,
 	}, nil
 }
@@ -68,7 +68,7 @@ func getOwnersAndRepoFromCurrentGitFile() (string, string, error) {
 		feature := strings.Split(s, "=")
 		key := feature[0]
 
-		switch(key){
+		switch key {
 		case "user.name":
 			owner = feature[1]
 		case "remote.origin.url":
@@ -92,8 +92,8 @@ func (gc *GithubClient) GenerateEncryptedSecret(data map[string]string) ([]*gith
 
 	for name, value := range data {
 		secrets = append(secrets, &github.EncryptedSecret{
-			Name: name,
-			KeyID: *gc.PublicKey.KeyID,
+			Name:           name,
+			KeyID:          *gc.PublicKey.KeyID,
 			EncryptedValue: encryptSodium(value, pk),
 		})
 	}
