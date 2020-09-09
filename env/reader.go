@@ -2,13 +2,15 @@ package env
 
 import (
 	"bufio"
+	"encoding/base64"
 	"golang.org/x/xerrors"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
 )
 
-func FileExist(fname string) bool {
+func fileExist(fname string) bool {
 	_, err := os.Stat(fname)
 	return err == nil
 }
@@ -21,6 +23,10 @@ func ReadFromDotEnvFile(fname string) (map[string]string, error) {
 	absPath, err := filepath.Abs(fname)
 	if err!= nil {
 		return nil, err
+	}
+
+	if !fileExist(absPath) {
+		return nil, xerrors.New("no such file, check your input file name")
 	}
 
 	fp, err := os.Open(absPath)
@@ -54,4 +60,22 @@ func ReadFromDotEnvFile(fname string) (map[string]string, error) {
 	}
 
 	return values, nil
+}
+
+func ReadFromFileEncryptBase64(fname string) (string, error) {
+	if !fileExist(fname) {
+		return "", xerrors.New("no such file, check your input file name")
+	}
+
+	absPath, err := filepath.Abs(fname)
+	if err != nil {
+		return "", err
+	}
+
+	bytes, err := ioutil.ReadFile(absPath)
+	if err != nil {
+		return "", err
+	}
+
+	return base64.StdEncoding.EncodeToString(bytes), nil
 }

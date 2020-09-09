@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/hatobus/ghsu/env"
+	"github.com/hatobus/ghsu/command"
 	"github.com/hatobus/ghsu/updator"
 	"github.com/urfave/cli"
 	"log"
@@ -41,22 +41,13 @@ func main() {
 				{
 					Name: "env",
 					Usage: "show from .env file format",
-					Action: func(c *cli.Context) error {
-						fname := c.Args().First()
-
-						values, err := env.ReadFromDotEnvFile(fname)
-						if err != nil {
-							return err
-						}
-
-						fmt.Printf("new variables from \"%v\"\n", fname)
-
-						for key, val := range values {
-							fmt.Printf("key: %v \t value: %v \n", key, val)
-						}
-
-						return nil
-					},
+					Action: command.ShowFromEnvFile(),
+				},
+				{
+					Name: "file",
+					Usage: "show up from user's file",
+					UsageText: "\"key\" is the key name of github secrets, \"filename\" is the specific file name want to upload (Base64 encrypted).",
+					Action: command.ShowFromUserFile(),
 				},
 			},
 		},
