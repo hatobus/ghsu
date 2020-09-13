@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 
@@ -33,8 +32,6 @@ func main() {
 		}
 	}
 
-	fmt.Println(githubClient)
-
 	app.Commands = []cli.Command{
 		{
 			Name:  "show",
@@ -50,6 +47,17 @@ func main() {
 					Usage:     "show up from user's file",
 					UsageText: "\"key\" is the key name of github secrets, \"filename\" is the specific file name want to upload (Base64 encrypted).",
 					Action:    command.ShowFromUserFile(),
+				},
+			},
+		},
+		{
+			Name:  "set",
+			Usage: "set your environment variable",
+			Subcommands: []cli.Command{
+				{
+					Name:   "env",
+					Usage:  "set environment variable from .env format file",
+					Action: command.SetEnvironmentFromEnv(githubClient),
 				},
 			},
 		},

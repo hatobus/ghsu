@@ -21,6 +21,8 @@ type GithubClient struct {
 	Token     string
 	PublicKey *github.PublicKey
 	Client    *github.Client
+	Owner     string
+	Repo      string
 }
 
 func NewGithubClient() (*GithubClient, error) {
@@ -51,6 +53,8 @@ func NewGithubClient() (*GithubClient, error) {
 		Token:     githubToken,
 		Client:    githubClient,
 		PublicKey: pubKey,
+		Owner:     owner,
+		Repo:      repo,
 	}, nil
 }
 
