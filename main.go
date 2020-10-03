@@ -10,6 +10,18 @@ import (
 	"github.com/hatobus/ghsu/updator"
 )
 
+const (
+	cmdShow   = "show"
+	cmdSet    = "set"
+	cmdEditor = "editor"
+)
+
+const (
+	usageShow   = "show up the value you want to upload"
+	usageSet    = "set your environment variable"
+	usageEditor = "set your ghsu editor"
+)
+
 func main() {
 	app := cli.NewApp()
 	app.Name = "ghsu"
@@ -34,8 +46,8 @@ func main() {
 
 	app.Commands = []cli.Command{
 		{
-			Name:  "show",
-			Usage: "show up the value you want to upload",
+			Name:  cmdShow,
+			Usage: usageShow,
 			Subcommands: []cli.Command{
 				{
 					Name:   "env",
@@ -51,8 +63,8 @@ func main() {
 			},
 		},
 		{
-			Name:  "set",
-			Usage: "set your environment variable",
+			Name:  cmdSet,
+			Usage: usageSet,
 			Subcommands: []cli.Command{
 				{
 					Name:   "env",
