@@ -4,9 +4,10 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/urfave/cli"
+
 	"github.com/hatobus/ghsu/env"
 	"github.com/hatobus/ghsu/updator"
-	"github.com/urfave/cli"
 )
 
 func SetEnvironmentFromEnv(gc *updator.GithubClient) func(c *cli.Context) error {

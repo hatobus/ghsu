@@ -23,17 +23,19 @@ const (
 )
 
 const (
-	usageShow   = "show up the value you want to upload"
-	usageSet    = "set your environment variable"
-	usageEditor = "set your ghsu editor"
+	usageShow      = "show up the value you want to upload"
+	usageSet       = "set your environment variable"
+	usageEditor    = "set your ghsu editor"
+	usageSetEditor = "set ghsu editor"
 )
 
 const (
-	subUsageShowEnv      = "show from .env file format"
-	subUsageShowFile     = "show up from user's file"
-	subUsageShowFileText = "\"key\" is the key name of github secrets, \"filename\" is the specific file name want to upload (Base64 encrypted)."
-	subUsageSetEnv       = "set environment variable from .env format file"
-	subUsageSetEditor    = "environment variable editor mode"
+	subUsageShowEnv       = "show from .env file format"
+	subUsageShowFile      = "show up from user's file"
+	subUsageShowFileText  = "\"key\" is the key name of github secrets, \"filename\" is the specific file name want to upload (Base64 encrypted)."
+	subUsageSetEnv        = "set environment variable from .env format file"
+	subUsageSetEditor     = "environment variable editor mode"
+	subUsageSetEditorText = "\".env\" file format"
 )
 
 func main() {
@@ -83,9 +85,21 @@ func main() {
 					Action: command.SetEnvironmentFromEnv(githubClient),
 				},
 				{
-					Name:   subCmdEditor,
-					Usage:  subUsageSetEditor,
-					Action: command.SetEditor(),
+					Name:      subCmdEditor,
+					Usage:     subUsageSetEditor,
+					UsageText: subUsageSetEditorText,
+					Action:    command.SetEditor(),
+				},
+			},
+		},
+		{
+			Name:  cmdEditor,
+			Usage: usageEditor,
+			Subcommands: []cli.Command{
+				{
+					Name:   cmdEditor,
+					Usage:  usageSetEditor,
+					Action: command.UploadFromEditor(githubClient),
 				},
 			},
 		},

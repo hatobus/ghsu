@@ -3,16 +3,24 @@ package env
 import (
 	"bufio"
 	"encoding/base64"
-	"golang.org/x/xerrors"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"golang.org/x/xerrors"
 )
 
 func fileExist(fname string) bool {
 	_, err := os.Stat(fname)
 	return err == nil
+}
+
+func tmpFileDelete(fname string) error {
+	if strings.HasPrefix(fname, "/tmp") {
+		return os.Remove(fname)
+	}
+	return nil
 }
 
 func ReadFromDotEnvFile(fname string) (map[string]string, error) {
@@ -45,18 +53,21 @@ func ReadFromDotEnvFile(fname string) (map[string]string, error) {
 			continue
 		}
 
-		elems := strings.Split(scanned, "=")
+		elems := strings.SplitN(scanned, "=", 2)
 		if len(elems) < 2 {
 			return nil, xerrors.New("read data failed invalid data format")
 		}
 
-		key := elems[0]
-		value := strings.Join(elems[1:len(elems)], "=")
-		values[key] = value
+		values[elems[0]] = elems[1]
 	}
 
 	if len(values) == 0 {
 		return nil, xerrors.New("read data failed invalid data format")
+	}
+
+	err = tmpFileDelete(fname)
+	if err != nil {
+		return nil, err
 	}
 
 	return values, nil
