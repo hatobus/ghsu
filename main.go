@@ -68,6 +68,11 @@ func main() {
 					Usage:  "set environment variable from .env format file",
 					Action: command.SetEnvironmentFromEnv(githubClient),
 				},
+				{
+					Name:   "editer",
+					Usage:  "environment variable editor mode",
+					Action: command.SetEditor(),
+				},
 			},
 		},
 	}
