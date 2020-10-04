@@ -14,25 +14,28 @@ const (
 	cmdShow   = "show"
 	cmdSet    = "set"
 	cmdEditor = "editor"
+	cmdDelete = "delete"
 )
 
 const (
-	subCmdEnv    = "env"
-	subCmdFile   = "file"
-	subCmdEditor = "editor"
+	subCmdEnv     = "env"
+	subCmdFile    = "file"
+	subCmdEditor  = "editor"
+	subCmdSecrets = "secrets"
 )
 
 const (
-	usageShow      = "show up the value you want to upload"
-	usageSet       = "set your environment variable"
-	usageEditor    = "set your ghsu editor"
-	usageSetEditor = "set ghsu editor"
+	usageShow   = "show up the value you want to upload"
+	usageSet    = "set your environment variable"
+	usageEditor = "set your ghsu editor"
+	usageDelete = "delete variable"
 )
 
 const (
 	subUsageShowEnv       = "show from .env file format"
 	subUsageShowFile      = "show up from user's file"
 	subUsageShowFileText  = "\"key\" is the key name of github secrets, \"filename\" is the specific file name want to upload (Base64 encrypted)."
+	subUsageShowSecrets   = "show up set github secrets"
 	subUsageSetEnv        = "set environment variable from .env format file"
 	subUsageSetEditor     = "environment variable editor mode"
 	subUsageSetEditorText = "\".env\" file format"
@@ -98,15 +101,14 @@ func main() {
 			},
 		},
 		{
-			Name:  cmdEditor,
-			Usage: usageEditor,
-			Subcommands: []cli.Command{
-				{
 			Name:   cmdEditor,
-					Usage:  usageSetEditor,
-					Action: command.UploadFromEditor(githubClient),
-				},
-			},
+			Usage:  usageEditor,
+			Action: command.UploadFromEditor(githubClient),
+		},
+		{
+			Name:   cmdDelete,
+			Usage:  usageDelete,
+			Action: command.DeleteSecrets(githubClient),
 		},
 	}
 

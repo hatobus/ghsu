@@ -2,6 +2,9 @@ package updator
 
 import (
 	"context"
+	"fmt"
+	"log"
+	"net/http"
 	"os"
 	"os/exec"
 	"strings"
@@ -32,7 +35,8 @@ func NewGithubClient() (*GithubClient, error) {
 	}
 
 	sts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: os.Getenv("GITHUB_TOKEN")})
+		&oauth2.Token{AccessToken: os.Getenv("GITHUB_TOKEN")},
+	)
 
 	oauthClient := oauth2.NewClient(context.Background(), sts)
 	githubClient := github.NewClient(oauthClient)

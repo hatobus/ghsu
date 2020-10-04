@@ -2,6 +2,9 @@ package command
 
 import (
 	"fmt"
+	"log"
+
+	"github.com/hatobus/ghsu/updator"
 
 	"github.com/hatobus/ghsu/env"
 	"github.com/urfave/cli"

@@ -2,6 +2,7 @@ package updator
 
 import (
 	"encoding/base64"
+
 	"github.com/jamesruan/sodium"
 )
 

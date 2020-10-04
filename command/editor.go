@@ -3,6 +3,7 @@ package command
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/urfave/cli"
@@ -16,12 +17,18 @@ import (
 func SetEditor() func(c *cli.Context) error {
 	return func(c *cli.Context) error {
 
-		editor := c.Args().First()
-		if editor == "" {
+		editorName := c.Args().First()
+		if editorName == "" {
 			return xerrors.Errorf("please input editor name")
 		}
 
-		return os.Setenv("GHSU_EDITOR", editor)
+		if err := os.Setenv("GHSU_EDITOR", editorName); err != nil {
+			return err
+		}
+
+		log.Printf("Successfully set ghsu editor %v \n", editorName)
+
+		return nil
 	}
 }
 
@@ -48,6 +55,11 @@ func UploadFromEditor(gc *updator.GithubClient) func(c *cli.Context) error {
 			if err != nil {
 				fmt.Printf("Key: %v, registration error", secret.Name)
 			}
+		}
+
+		if err := gc.ShowUpSetSecrets(); err != nil {
+			log.Println(err)
+			return err
 		}
 
 		return nil
