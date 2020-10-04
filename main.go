@@ -73,6 +73,11 @@ func main() {
 					UsageText: subUsageShowFileText,
 					Action:    command.ShowFromUserFile(),
 				},
+				{
+					Name:   subCmdSecrets,
+					Usage:  subUsageShowSecrets,
+					Action: command.ShowSecret(githubClient),
+				},
 			},
 		},
 		{

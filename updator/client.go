@@ -104,3 +104,34 @@ func (gc *GithubClient) GenerateEncryptedSecret(data map[string]string) ([]*gith
 
 	return secrets, nil
 }
+
+func (gc *GithubClient) ShowUpSetSecrets() error {
+	ctx := context.Background()
+	secrets, res, err := gc.Client.Actions.ListSecrets(ctx, gc.Owner, gc.Repo, nil)
+	if err != nil {
+		log.Println(res)
+		return err
+	}
+
+	fmt.Printf("github secret %v already set\n", secrets.TotalCount)
+
+	for _, s := range secrets.Secrets {
+		fmt.Printf("variable: %v\n", s.Name)
+		fmt.Printf("created at: %v\n", s.CreatedAt)
+		fmt.Printf("last update: %v\n", s.UpdatedAt)
+	}
+
+	return nil
+}
+
+func (gc *GithubClient) ExistRepoSecret(owner, repo, name string) bool {
+	ctx := context.Background()
+	_, res, err := gc.Client.Actions.GetSecret(ctx, owner, repo, name)
+	if res != nil && res.StatusCode != http.StatusOK {
+		return false
+	} else if err != nil {
+		log.Println(err)
+		return false
+	}
+	return true
+}

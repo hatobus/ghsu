@@ -54,3 +54,13 @@ func ShowFromUserFile() func(c *cli.Context) error {
 		return nil
 	}
 }
+
+func ShowSecret(gc *updator.GithubClient) func(c *cli.Context) error {
+	return func(c *cli.Context) error {
+		if err := gc.ShowUpSetSecrets(); err != nil {
+			log.Println(err)
+			return err
+		}
+		return nil
+	}
+}
