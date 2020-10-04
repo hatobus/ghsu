@@ -102,7 +102,7 @@ func main() {
 			Usage: usageEditor,
 			Subcommands: []cli.Command{
 				{
-					Name:   cmdEditor,
+			Name:   cmdEditor,
 					Usage:  usageSetEditor,
 					Action: command.UploadFromEditor(githubClient),
 				},
