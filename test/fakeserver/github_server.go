@@ -3,21 +3,18 @@ package fakeserver
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 	"path"
 	"strings"
 	"sync"
-
-	"github.com/google/go-cmp/cmp"
+	"time"
 
 	"github.com/google/go-github/github"
 )
 
 var mu sync.RWMutex
-var secrets map[string]string
+var secrets map[string]*github.Secret
 
 func shiftPath(p string) (head, tail string) {
 	p = path.Clean("/" + p)
@@ -26,19 +23,6 @@ func shiftPath(p string) (head, tail string) {
 		return p[1:], "/"
 	}
 	return p[1:i], p[i:]
-}
-
-func verifyAuthToken(r *http.Request) (int, error) {
-	b, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		return http.StatusInternalServerError, err
-	}
-
-	if diff := cmp.Diff(string(b), os.Getenv("GITHUB_TOKEN")); diff != "" {
-		return http.StatusBadRequest, fmt.Errorf("Authentication token not valid, diff: %v\n", diff)
-	}
-
-	return http.StatusOK, nil
 }
 
 func FakeGithubSecretHandler() http.HandlerFunc {
@@ -60,13 +44,7 @@ func FakeGithubSecretHandler() http.HandlerFunc {
 }
 
 func setSecret(w http.ResponseWriter, r *http.Request) {
-	code, err := verifyAuthToken(r)
-	if err != nil {
-		log.Println(err)
-		http.Error(w, err.Error(), code)
-	}
-
-	w.WriteHeader(code)
+	w.WriteHeader(http.StatusCreated)
 
 	secret := new(github.EncryptedSecret)
 	if err := json.NewDecoder(r.Body).Decode(&secret); err != nil {
@@ -75,25 +53,36 @@ func setSecret(w http.ResponseWriter, r *http.Request) {
 	}
 
 	mu.Lock()
-	secrets[secret.Name] = secret.EncryptedValue
+	s, ok := secrets[secret.Name]
 	mu.Unlock()
 
-	return
+	var ts github.Timestamp
+	if ok {
+		ts = s.CreatedAt
+	} else {
+		ts = github.Timestamp{Time: time.Now()}
+	}
+
+	secretData := &github.Secret{
+		Name:      secret.Name,
+		CreatedAt: ts,
+		UpdatedAt: github.Timestamp{
+			Time: time.Now(),
+		},
+	}
+
+	mu.Lock()
+	secrets[secret.Name] = secretData
+	mu.Unlock()
 }
 
 func getSecret(w http.ResponseWriter, r *http.Request) {
-	code, err := verifyAuthToken(r)
-	if err != nil {
-		log.Println(err)
-		http.Error(w, err.Error(), code)
-	}
-
-	w.WriteHeader(code)
+	w.WriteHeader(http.StatusOK)
 
 	_, secretName := shiftPath(r.URL.Path)
 
 	mu.RLock()
-	_, ok := secrets[secretName]
+	secret, ok := secrets[secretName]
 	mu.RUnlock()
 
 	if !ok {
@@ -101,16 +90,11 @@ func getSecret(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s := &github.Secret{
-		Name: secretName,
-	}
-
-	b, err := json.Marshal(s)
+	b, err := json.Marshal(secret)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	w.Write(b)
-	return
 }

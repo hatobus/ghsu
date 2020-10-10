@@ -1,12 +1,16 @@
 package e2e
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"net/url"
 	"os"
+	"strings"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-github/github"
 
 	"github.com/hatobus/ghsu/test/fakeserver"
 	"github.com/hatobus/ghsu/updator"
@@ -14,15 +18,19 @@ import (
 
 func prepareFakeServer(owner, repo string) *http.ServeMux {
 	mux := http.NewServeMux()
-	registerEndpoint := fmt.Sprintf("repos/%v/%v/actions/secrets", owner, repo)
+	registerEndpoint := fmt.Sprintf("/api/v3/repos/%v/%v/actions/secrets", owner, repo)
 	mux.HandleFunc(registerEndpoint, fakeserver.FakeGithubSecretHandler())
 	return mux
 }
 
+func toPtr(s string) *string {
+	return &s
+}
+
 func TestGetSecretFromServer(t *testing.T) {
 	type testData struct {
-		data       map[string]string
-		wantStatus int
+		data    map[string]string
+		isExist map[string]bool
 	}
 
 	testCases := map[string]testData{
@@ -32,21 +40,40 @@ func TestGetSecretFromServer(t *testing.T) {
 				"age":  "22",
 				"from": "japan",
 			},
-			wantStatus: http.StatusOK,
+			isExist: map[string]bool{
+				"name": true,
+				"age":  true,
+				"from": true,
+			},
 		},
 	}
 
-	client := updator.GithubClient{}
+	var client *updator.GithubClient
 
-	if os.Getenv("GITHUB_ACTIONS") == "true" {
-		m := prepareFakeServer(client.Owner, client.Repo)
+	if os.Getenv("GITHUB_ACTIONS") != "true" {
+		owner := "hatobus"
+		repo := "ghsu"
+
+		m := prepareFakeServer(owner, repo)
 
 		secretHandler := httptest.NewServer(m)
-		u, err := url.Parse(secretHandler.URL)
+
+		httpClient := http.DefaultClient
+
+		githubClient, err := github.NewEnterpriseClient(secretHandler.URL, secretHandler.URL, httpClient)
 		if err != nil {
 			t.Fatal(err)
 		}
-		client.Client.BaseURL = u
+
+		client = &updator.GithubClient{
+			Owner: owner,
+			Repo:  repo,
+			PublicKey: &github.PublicKey{
+				Key:   toPtr(strings.Repeat("a", 32)),
+				KeyID: toPtr("key-id"),
+			},
+			Client: githubClient,
+		}
 
 		t.Cleanup(func() {
 			secretHandler.Close()
@@ -55,7 +82,28 @@ func TestGetSecretFromServer(t *testing.T) {
 
 	for testName, tc := range testCases {
 		t.Run(testName, func(t *testing.T) {
-			t.Log(tc.data)
+			encrypted, err := client.GenerateEncryptedSecret(tc.data)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			// add secret data mock server
+			for _, secret := range encrypted {
+				ctx := context.Background()
+				_, err := client.Client.Actions.CreateOrUpdateSecret(ctx, client.Owner, client.Repo, secret)
+				if err != nil {
+					t.Log(err)
+					t.Fatalf("Key: %v, registration error", secret.Name)
+				}
+			}
+
+			for name, exist := range tc.isExist {
+				res := client.ExistRepoSecret(client.Owner, client.Repo, name)
+
+				if diff := cmp.Diff(exist, res); diff != "" {
+					t.Logf("invalid ExistRepoSecret response, diff: %v", diff)
+				}
+			}
 		})
 	}
 }
