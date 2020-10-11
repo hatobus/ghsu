@@ -33,17 +33,27 @@ func TestGetSecretFromServer(t *testing.T) {
 		isExist map[string]bool
 	}
 
+	defaultData := map[string]string{
+		"name": "hatobus",
+		"age":  "22",
+		"from": "japan",
+	}
+
 	testCases := map[string]testData{
 		"正常系": {
-			data: map[string]string{
-				"name": "hatobus",
-				"age":  "22",
-				"from": "japan",
-			},
+			data: defaultData,
 			isExist: map[string]bool{
 				"name": true,
 				"age":  true,
 				"from": true,
+			},
+		},
+		"存在しないものも入っている": {
+			data: defaultData,
+			isExist: map[string]bool{
+				"name":   true,
+				"hobby":  false,
+				"weight": false,
 			},
 		},
 	}
