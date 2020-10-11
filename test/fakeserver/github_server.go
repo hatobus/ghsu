@@ -105,5 +105,7 @@ func getSecret(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	w.Write(b)
+	if _, err = w.Write(b); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
