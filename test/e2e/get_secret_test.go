@@ -18,7 +18,7 @@ import (
 
 func prepareFakeServer(owner, repo string) *http.ServeMux {
 	mux := http.NewServeMux()
-	registerEndpoint := fmt.Sprintf("/api/v3/repos/%v/%v/actions/secrets", owner, repo)
+	registerEndpoint := fmt.Sprintf("/api/v3/repos/%v/%v/actions/secrets/", owner, repo)
 	mux.HandleFunc(registerEndpoint, fakeserver.FakeGithubSecretHandler())
 	return mux
 }
@@ -101,7 +101,7 @@ func TestGetSecretFromServer(t *testing.T) {
 				res := client.ExistRepoSecret(client.Owner, client.Repo, name)
 
 				if diff := cmp.Diff(exist, res); diff != "" {
-					t.Logf("invalid ExistRepoSecret response, diff: %v", diff)
+					t.Fatalf("invalid ExistRepoSecret response, diff: %v", diff)
 				}
 			}
 		})

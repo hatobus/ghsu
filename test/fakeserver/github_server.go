@@ -14,7 +14,7 @@ import (
 )
 
 var mu sync.RWMutex
-var secrets map[string]*github.Secret
+var secrets = map[string]*github.Secret{}
 
 func shiftPath(p string) (head, tail string) {
 	p = path.Clean("/" + p)
@@ -23,6 +23,11 @@ func shiftPath(p string) (head, tail string) {
 		return p[1:], "/"
 	}
 	return p[1:i], p[i:]
+}
+
+func getLastPathParameter(s string) string {
+	p := strings.Split(s, "/")
+	return p[len(p)-1]
 }
 
 func FakeGithubSecretHandler() http.HandlerFunc {
@@ -44,13 +49,15 @@ func FakeGithubSecretHandler() http.HandlerFunc {
 }
 
 func setSecret(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusCreated)
-
-	secret := new(github.EncryptedSecret)
+	var secret github.EncryptedSecret
 	if err := json.NewDecoder(r.Body).Decode(&secret); err != nil {
 		log.Println(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
+
+	_, secretPath := shiftPath(r.URL.Path)
+	secret.Name = getLastPathParameter(secretPath)
 
 	mu.Lock()
 	s, ok := secrets[secret.Name]
@@ -71,19 +78,20 @@ func setSecret(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
+	log.Printf("secret: %v", secretData)
+
 	mu.Lock()
 	secrets[secret.Name] = secretData
 	mu.Unlock()
+
+	w.WriteHeader(http.StatusCreated)
 }
 
 func getSecret(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
+	_, secretPath := shiftPath(r.URL.Path)
+	secretName := getLastPathParameter(secretPath)
 
-	_, secretName := shiftPath(r.URL.Path)
-
-	mu.RLock()
 	secret, ok := secrets[secretName]
-	mu.RUnlock()
 
 	if !ok {
 		http.Error(w, fmt.Sprintf("%v not found", secretName), http.StatusBadRequest)
@@ -96,5 +104,6 @@ func getSecret(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.WriteHeader(http.StatusOK)
 	w.Write(b)
 }
