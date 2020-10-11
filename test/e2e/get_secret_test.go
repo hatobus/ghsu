@@ -88,6 +88,12 @@ func TestGetSecretFromServer(t *testing.T) {
 		t.Cleanup(func() {
 			secretHandler.Close()
 		})
+	} else {
+		var err error
+		client, err = updator.NewGithubClient()
+		if err != nil {
+			t.Fatal(err)
+		}
 	}
 
 	for testName, tc := range testCases {
