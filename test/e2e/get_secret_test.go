@@ -10,7 +10,7 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/google/go-github/github"
+	"github.com/google/go-github/v31/github"
 
 	"github.com/hatobus/ghsu/test/fakeserver"
 	"github.com/hatobus/ghsu/updator"
