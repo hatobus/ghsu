@@ -22,8 +22,12 @@ jobs:
       - name: Install libsodium package
         run: sudo apt update -y && sudo apt install -y libsodium-dev
 
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v1
+      # ghsu is got from `git config --list` command output for update environments variable
+      # updator/client.go's getOwnerAndRepoFromCurrentGitFile() are used on it.
+      # So, we need to set git config's "user.name" to "hatobus"
+      - name: git command setting
+        run: |
+          git config --local user.name "hatobus"
 
       - name: Run test
         run:
