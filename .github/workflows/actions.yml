@@ -44,7 +44,7 @@ jobs:
 
       # https://github.com/golangci/golangci-lint/issues/1176#issuecomment-639305758
       - name: Install dependencies
-        run: sudo apt update && sudo apt install libsnmp-dev
+        run: sudo apt update && sudo apt install libsnmp-dev linux-libc-dev
 
       - name: Install Lint
         run: |
