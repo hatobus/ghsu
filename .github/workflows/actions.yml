@@ -58,4 +58,4 @@ jobs:
           sudo mv ./bin/golangci-lint $GOPATH/bin/
       - name: Lint
         run:
-          make lint
+          golangci-lint cache clean && make lint
